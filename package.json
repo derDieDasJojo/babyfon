@@ -1,0 +1,26 @@
+{
+  "name": "babyfon",
+  "version": "1.0.0",
+  "description": "Sichere Audio- und Videoüberwachung im lokalen WLAN",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "dev": "http-server -p 8000 -o",
+    "server": "node signaling-server.js"
+  },
+  "keywords": [
+    "babyfon",
+    "webrtc",
+    "audio",
+    "video",
+    "wlan",
+    "p2p",
+    "monitoring"
+  ],
+  "author": "derDieDasJojo",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {}
+}

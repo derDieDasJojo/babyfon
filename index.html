@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babyfon - Lokale Audio/Video Überwachung</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Startbildschirm: Rolle wählen -->
+    <div id="roleSelector" class="container active">
+        <div class="role-selector-content">
+            <div class="logo">👶</div>
+            <h1>Babyfon</h1>
+            <p class="subtitle">Sichere Audio- und Video-Überwachung im lokalen WLAN</p>
+            
+            <div class="role-buttons">
+                <button id="babyBtn" class="role-btn baby-btn" data-role="baby">
+                    <span class="icon">🍼</span>
+                    <span class="label">Baby (Sender)</span>
+                    <span class="description">Kamera und Mikrofon freigeben</span>
+                </button>
+                
+                <button id="parentBtn" class="role-btn parent-btn" data-role="parent">
+                    <span class="icon">👨‍👩‍👧</span>
+                    <span class="label">Parent (Empfänger)</span>
+                    <span class="description">Überwachung starten</span>
+                </button>
+            </div>
+            
+            <div class="info-box">
+                <p>💡 Tipp: Beide Geräte müssen sich im gleichen lokalen WLAN befinden.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Baby-Modus: Stream freigeben -->
+    <div id="babyMode" class="container">
+        <div class="header">
+            <h1>🍼 Baby-Modus</h1>
+            <button id="switchRole" class="btn btn-secondary">Rolle wechseln</button>
+        </div>
+
+        <div class="baby-content">
+            <div class="status-card">
+                <h2>Verbindungsstatus</h2>
+                <div id="babyStatus" class="status-badge offline">
+                    <span class="status-dot"></span>
+                    <span id="babyStatusText">Warte auf Parent...</span>
+                </div>
+                <p class="status-hint">Im lokalen WLAN automatisch erkannt</p>
+            </div>
+
+            <div class="settings-card">
+                <h2>Einstellungen</h2>
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="audioEnabled" checked>
+                        <span>Audio aktivieren</span>
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="videoEnabled">
+                        <span>Video aktivieren</span>
+                    </label>
+                </div>
+                <button id="startStreamBtn" class="btn btn-primary">Stream starten</button>
+                <button id="stopStreamBtn" class="btn btn-danger" disabled>Stream stoppen</button>
+            </div>
+
+            <div id="videoContainer" class="video-container" style="display: none;">
+                <video id="localVideo" autoplay playsinline muted></video>
+            </div>
+
+            <div id="statsContainer" class="stats-card" style="display: none;">
+                <h3>Live Statistiken</h3>
+                <div class="stats-grid">
+                    <div class="stat">
+                        <span class="stat-label">Verbindungen</span>
+                        <span id="connectionCount" class="stat-value">0</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Bitrate (Video)</span>
+                        <span id="videoBitrate" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Bitrate (Audio)</span>
+                        <span id="audioBitrate" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Verzögerung</span>
+                        <span id="latency" class="stat-value">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parent-Modus: Stream empfangen -->
+    <div id="parentMode" class="container">
+        <div class="header">
+            <h1>👨‍👩‍👧 Parent-Modus</h1>
+            <button id="switchRole" class="btn btn-secondary">Rolle wechseln</button>
+        </div>
+
+        <div class="parent-content">
+            <div class="connection-card">
+                <h2>Verfügbare Babys</h2>
+                <p class="description">Alle Babys im lokalen WLAN werden automatisch erkannt</p>
+                
+                <button id="discoverBtn" class="btn btn-primary">🔍 Nach Babys suchen</button>
+                
+                <div id="babyList" class="baby-list" style="display: none;">
+                    <!-- Wird dynamisch gefüllt -->
+                </div>
+
+                <div id="noBabiesMsg" class="info-box" style="margin-top: 20px;">
+                    <p>📡 Keine Babys gefunden. Stelle sicher, dass:</p>
+                    <ul>
+                        <li>Das Baby-Gerät im gleichen WLAN ist</li>
+                        <li>Der Stream auf dem Baby läuft</li>
+                        <li>Beide Geräte miteinander kommunizieren können</li>
+                    </ul>
+                </div>
+
+                <div id="parentStatus" class="status-badge offline" style="margin-top: 20px;">
+                    <span class="status-dot"></span>
+                    <span id="parentStatusText">Nicht verbunden</span>
+                </div>
+            </div>
+
+            <div id="remoteVideoContainer" class="video-container remote" style="display: none;">
+                <video id="remoteVideo" autoplay playsinline></video>
+                <div class="video-overlay">
+                    <button id="toggleAudio" class="btn btn-small" title="Ton aus/an">🔊</button>
+                    <button id="fullscreenBtn" class="btn btn-small" title="Vollbild">⛶</button>
+                </div>
+            </div>
+
+            <div id="parentStatsContainer" class="stats-card" style="display: none;">
+                <h3>Live Statistiken</h3>
+                <div class="stats-grid">
+                    <div class="stat">
+                        <span class="stat-label">Status</span>
+                        <span id="remoteStatus" class="stat-value">Getrennt</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Bitrate</span>
+                        <span id="remoteBitrate" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Verzögerung</span>
+                        <span id="remoteLatency" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Pakete</span>
+                        <span id="packetLoss" class="stat-value">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="disconnectBtn" class="btn btn-danger" style="display: none;">Verbindung trennen</button>
+        </div>
+    </div>
+
+    <!-- Fehler-Dialog -->
+    <div id="errorModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>Fehler</h2>
+            <p id="errorMessage"></p>
+            <button class="btn btn-primary" onclick="document.getElementById('errorModal').style.display = 'none';">OK</button>
+        </div>
+    </div>
+
+    <!-- Toast für Benachrichtigungen -->
+    <div id="toast" class="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/webconnect@latest/dist/webconnect.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
